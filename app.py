@@ -9,9 +9,18 @@ from flask import Flask, render_template, request
 import pickle
 import numpy as np
 import pandas as pd
+from sqlalchemy import create_engine
+import pymysql
 
 
 # In[15]:
+
+engine = create_engine("mysql+pymysql://{user}:{pw}@localhost:3306/{db}"
+                       .format(user="root",
+                               pw="aaryan007",
+                               db="even"))
+leads= pd.read_sql("select * from leads", engine.connect())
+loan_purpose_list=leads['loan_purpose'].unique().tolist()
 
 
 # Load the Random Forest CLassifier model
@@ -39,7 +48,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    credit_list=['limited','unknown','poor','good','fair','excellent']
+    return render_template('index.html',credit=credit_list,loan=loan_purpose_list)
 
 
 # In[ ]:
@@ -48,22 +58,27 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-        apr = float(request.form['APR'])
+        apr = list(request.form['APR'])
         requested = float(request.form['Requested_Amount'])
         annual_income = float(request.form['Annual_Income'])
         credit = str(request.form['Credit'])
         loan_purpose = str(request.form['Loan_Purpose'])
         
+        
         credit_bucket=convert_credit(credit)
         no_credit=no_credit_func(credit)
         loan_purpose_encoded= encoder.transform([[loan_purpose]]).toarray()
+	my_prediction ={}
         
-        data = np.array([[apr, requested, annual_income, no_credit, credit_bucket]])
-        data=np.concatenate((data,loan_purpose_encoded),axis=1)
-        my_prediction = classifier.predict(data)
-        print(my_prediction[0])
+	for i in apr:
+		apr=int(i)
+        	data = np.array([[apr, requested, annual_income, no_credit, credit_bucket]])
+        	data=np.concatenate((data,loan_purpose_encoded),axis=1)
+        	my_prediction[apr] = classifier.predict_proba(data)[0][1]
+        print(my_prediction)
         
-        return render_template('result.html', prediction=my_prediction[0])
+        return render_template('result.html', prediction=my_prediction)
+
 
 
 # In[ ]:
@@ -71,6 +86,8 @@ def predict():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
 
 
