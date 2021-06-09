@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[13]:
+# In[1]:
 
 
 # Importing essential libraries
@@ -13,7 +13,9 @@ from sqlalchemy import create_engine
 import pymysql
 
 
-# In[15]:
+# In[2]:
+
+
 
 engine = create_engine("mysql+pymysql://{user}:{pw}@localhost:3306/{db}"
                        .format(user="root",
@@ -21,7 +23,6 @@ engine = create_engine("mysql+pymysql://{user}:{pw}@localhost:3306/{db}"
                                db="even"))
 leads= pd.read_sql("select * from leads", engine.connect())
 loan_purpose_list=leads['loan_purpose'].unique().tolist()
-
 
 # Load the Random Forest CLassifier model
 
@@ -58,7 +59,7 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-        apr = list(request.form['APR'])
+       	apr = request.form['APR'].split(',')
         requested = float(request.form['Requested_Amount'])
         annual_income = float(request.form['Annual_Income'])
         credit = str(request.form['Credit'])
@@ -68,17 +69,16 @@ def predict():
         credit_bucket=convert_credit(credit)
         no_credit=no_credit_func(credit)
         loan_purpose_encoded= encoder.transform([[loan_purpose]]).toarray()
-	my_prediction ={}
+        my_prediction ={}
         
-	for i in apr:
-		apr=int(i)
-        	data = np.array([[apr, requested, annual_income, no_credit, credit_bucket]])
-        	data=np.concatenate((data,loan_purpose_encoded),axis=1)
-        	my_prediction[apr] = classifier.predict_proba(data)[0][1]
+        for i in apr:
+            apr=float(i)
+            data = np.array([[apr, requested, annual_income, no_credit, credit_bucket]])
+            data=np.concatenate((data,loan_purpose_encoded),axis=1)
+            my_prediction[apr] = classifier.predict_proba(data)[0][1].round(2)
         print(my_prediction)
         
         return render_template('result.html', prediction=my_prediction)
-
 
 
 # In[ ]:
@@ -86,9 +86,4 @@ def predict():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
 
