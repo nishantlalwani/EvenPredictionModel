@@ -23,11 +23,29 @@
         <!-- Text Area -->
     	<div class="ml-container">
     		<form action="{{ url_for('predict') }}" method="POST">
-                <input class="form-input" type="text" name="APR" placeholder="APR eg. 10.10"><br>
-                <input class="form-input" type="text" name="Requested_Amount" placeholder="Requested Amount ($) eg. 5000"><br>
+                <p>
+		Enter APR comma seperated for multiple offers(ex- 10.1,12,13):<input class="form-input" type="text" name="APR"><br>
+		</p>
+                <input class="form-input" type="" name="Requested_Amount" placeholder="Requested Amount ($) eg. 5000"><br>
                 <input class="form-input" type="text" name="Annual_Income" placeholder="Annual_Income ($) eg. 80000"><br>
-                <input class="form-input" type="text" name="Credit" placeholder="Credit Bucket"><br>
-                <input class="form-input" type="text" name="Loan_Purpose" placeholder="Purpose of Loan"><br>
+                <p>
+		{{ credit | safe }}
+
+		Choose credit bucket:<SELECT name="Credit">
+		{% for j in credit%}
+			{{ j | safe }}
+			<OPTION value={{j}}>{{j}}</OPTION>
+		{% endfor %}
+		</SELECT>
+		</p>
+
+                <p>
+		Purpose of Loan:<SELECT name="Loan_Purpose">
+		{% for j in loan%}
+			<OPTION value={{j}}>{{j}}</OPTION>
+		{% endfor %}
+		</SELECT>
+		</p>
 
         		<input type="submit" class="my-cta-button" value="Predict">
         	</form>

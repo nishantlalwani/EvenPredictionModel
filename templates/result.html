@@ -22,13 +22,15 @@
 
 		<!-- Result -->
 		<div class="results">
-			{% if prediction==1 %}
-				<h1>Prediction: <span class='danger'>Yay! You loan is APPROVED.</span></h1>
-				<img class="gif" src="{{ url_for('static', filename='no-diabetes.webp') }}" alt="Diabetes Image">
-			{% elif prediction==0 %}
-				<h1>Prediction: <span class='safe'>Oops! You loan is NOT APPROVED.</span></h1>
-				<img class="gif1" src="{{ url_for('static', filename='diabetes.webp') }}" alt="Not Diabetes Image">
-			{% endif %}
+
+			{% for item in prediction.items() %}
+				<div>Prediction:
+				<div>
+					APR-:{{item[0]}}--->Probability-:{{item[1]}}
+				</div>
+				
+				 </div>
+			{% endfor %}
 		</div>
 
 		<!-- Footer -->
