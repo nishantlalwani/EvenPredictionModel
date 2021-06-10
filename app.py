@@ -15,13 +15,7 @@ import pymysql
 
 # In[2]:
 
-
-
-engine = create_engine("mysql+pymysql://{user}:{pw}@localhost:3306/{db}"
-                       .format(user="root",
-                               pw="aaryan007",
-                               db="even"))
-leads= pd.read_sql("select * from leads", engine.connect())
+leads= pd.read_parquet('ds_leads.parquet.gzip')
 loan_purpose_list=leads['loan_purpose'].unique().tolist()
 
 # Load the Random Forest CLassifier model
