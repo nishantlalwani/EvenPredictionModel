@@ -1,5 +1,6 @@
 # EvenPredictionModel
 
+There are parquet format input files for leads, offers and click,
 model.mwb- db model,  
 Database.zip - contains database files, 
 Requirement.txt - contains libraries required for running the application, 
